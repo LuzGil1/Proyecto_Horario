@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Coordinador</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-light d-md-none fixed-top shadow-sm" style="background-color: #F2AEBB; z-index: 1050;">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" th:href="@{/dashboard-coordinador}" style="color: #493f5d;">
+            <span class="fs-5">⚙️ Coordinador</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+    <div class="collapse navbar-collapse" id="mobileMenu" style="background-color: #F2AEBB;">
+        <div class="p-3">
+            <a class="btn w-100 mb-2 text-start" href="#" onclick="cargarEstudiantes()"
+               style="background-color: transparent; color: #493f5d; border: 1px solid #493f5d; font-weight: bold;">👥 Estudiantes</a>
+            <a class="btn w-100 mb-2 text-start" href="#" onclick="cargarImportacion()"
+               style="background-color: transparent; color: #493f5d; border: 1px solid #493f5d; font-weight: bold;">📤 Importación</a>
+            <a class="btn w-100 mb-2 text-start" href="#" onclick="cargarEstadisticas()"
+               style="background-color: transparent; color: #493f5d; border: 1px solid #493f5d; font-weight: bold;">📈 Estadísticas</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row min-vh-100">
+        <nav class="col-md-3 col-lg-2 d-none d-md-block position-fixed h-100 shadow" style="background-color: #86B0BD; z-index: 1000;">
+            <div class="p-4">
+                <a class="navbar-brand" th:href="@{/dashboard-coordinador}" style="color: white;"><h4 class="mb-4 fw-bold">⚙️ Coordinador</h4></a>
+                <div class="nav flex-column">
+                    <a class="btn mb-2 text-start" href="#" onclick="cargarEstudiantes()"
+                       style="background-color: transparent; color: #ffff; border: 1px solid #ffff; font-weight: bold;">👥 Estudiantes</a>
+                    <a class="btn mb-2 text-start" href="#" onclick="cargarImportacion()"
+                       style="background-color: transparent; color: #ffff; border: 1px solid #ffff; font-weight: bold;">📤 Importación</a>
+                    <a class="btn mb-2 text-start" href="#" onclick="cargarEstadisticas()"
+                       style="background-color: transparent; color: #ffff; border: 1px solid #ffff; font-weight: bold;">📈 Estadísticas</a>
+                </div>
+            </div>
+        </nav>
+
+        <main class="col-12 col-md-9 ms-md-auto col-lg-10 offset-lg-2 px-md-4 py-4" style="background-color: white;">
+            <div class="d-block d-md-none" style="height: 60px;"></div>
+
+            <div class="d-flex justify-content-between align-items-center mb-4 pt-md-0">
+                <h2 th:text="'Bienvenido Coordinador - ' + ${usuarioNombre}" class="fw-bold" style="color: #493f5d;">Bienvenido Coordinador</h2>
+                <a href="/logout" class="btn btn-danger mt-3 fw-bold shadow-sm">Cerrar sesión</a>
+            </div>
+
+            <hr class="mb-4">
+
+            <div id="contenido-dinamico">
+                <div class="p-4 border rounded-3 text-center text-muted" style="border-style: dashed !important;">
+                    Selecciona una opción del menú para comenzar.
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function cargarEstudiantes() {
+        const contenedor = document.getElementById("contenido-dinamico");
+        contenedor.innerHTML = `<div class="d-flex justify-content-center align-items-center vh-50">
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>`;
+
+        fetch('/estudiantes')
+            .then(res => res.json())
+            .then(data => {
+                let html = `
+                <h3 class="fw-bold mt-4">📚 Estudiantes</h3>
+                <p class="text-muted">Total: <strong>${data.length}</strong> estudiante${data.length !== 1 ? 's' : ''}</p>
+                <div class="card mt-2"><div class="card-body"><div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle">
+                        <thead class="table-dark"><tr>
+                            <th>#</th><th>Carne</th><th>Nombre</th><th>Carrera</th><th>Sexo</th><th>Fecha Inscripción</th>
+                        </tr></thead><tbody>`;
+
+                data.forEach((est, index) => {
+                    html += `<tr><td>${index + 1}</td><td>${est.carneEstudiante}</td><td>${est.nombreEstudiante}</td>
+                        <td>${est.carrera ?? ''}</td><td>${est.sexo ?? ''}</td><td>${est.fechaInscripcion ?? ''}</td></tr>`;
+                });
+
+                html += `</tbody></table></div></div></div>`;
+                contenedor.innerHTML = html;
+            })
+            .catch(err => {
+                contenedor.innerHTML = `<div class='alert alert-danger'>❌ Error al cargar los estudiantes</div>`;
+                console.error(err);
+            });
+    }
+
+    function cargarImportacion() {
+        const contenedor = document.getElementById("contenido-dinamico");
+        contenedor.innerHTML = `
+        <h3 class="fw-bold mt-4">📤 Importación de Datos desde Excel</h3>
+        <p class="text-muted">
+            Carga <strong>UN archivo Excel</strong> con <strong>DOS hojas:</strong> "Estudiantes" e "Inscripciones"
+        </p>
+
+        <div class="card mb-4 border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">📋 Importar Archivo Completo</h5>
+            </div>
+
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <strong>⚠️ Importante:</strong> El archivo Excel debe contener <strong>2 hojas</strong>:
+                    <ul class="mb-0 mt-2">
+                        <li><strong>Hoja 1 - "Estudiantes":</strong> carne_estudiante, nombre_estudiante, edad_estudiante, fecha_inscripcion, sexo, email, carrera, es_primer_ingreso, id_usuario</li>
+                        <li><strong>Hoja 2 - "Inscripciones":</strong> carne_estudiante, id_asignacion, fecha_inscripcion, estado, nota_final</li>
+                    </ul>
+                </div>
+
+                <div class="mb-3">
+                    <label for="archivoCompleto" class="form-label">Seleccionar archivo Excel:</label>
+                    <input type="file" class="form-control" id="archivoCompleto" accept=".xlsx,.xls">
+                </div>
+
+                <button onclick="importarCompleto()" class="btn btn-primary btn-lg" id="btnImportar">
+                    <i class="fas fa-cloud-upload-alt"></i> Importar Datos
+                </button>
+
+                <div id="mensajeImportacion" class="mt-3"></div>
+            </div>
+
+            <div class="alert alert-warning mt-4">
+                <h5 class="alert-heading">📋 Instrucciones:</h5>
+                <ul class="mb-0">
+                    <li>El archivo debe ser Excel (.xlsx o .xls)</li>
+                    <li><strong>Debe contener exactamente 2 hojas</strong></li>
+                    <li>La primera fila de cada hoja debe contener los encabezados</li>
+                    <li>Las fechas deben estar en formato <code>dd/MM/yyyy</code> o <code>d/M/yyyy</code></li>
+                    <li>El campo sexo solo acepta <strong>M</strong> o <strong>F</strong></li>
+                    <li>Los carnés y emails deben ser únicos</li>
+                    <li>El campo <strong>es_primer_ingreso</strong> acepta TRUE/FALSE o 1/0</li>
+                </ul>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <strong>Ejemplo de estructura del Excel:</strong>
+                </div>
+
+                <div class="card-body">
+                    <p class="mb-2"><strong>Hoja 1: Estudiantes</strong></p>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>carne_estudiante</th>
+                                    <th>nombre_estudiante</th>
+                                    <th>edad_estudiante</th>
+                                    <th>fecha_inscripcion</th>
+                                    <th>sexo</th>
+                                    <th>email</th>
+                                    <th>carrera</th>
+                                    <th>es_primer_ingreso</th>
+                                    <th>id_usuario</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>7590-23-1001</td>
+                                    <td>Juan Herrera</td>
+                                    <td>21</td>
+                                    <td>15/01/2025</td>
+                                    <td>M</td>
+                                    <td>juan@umg.edu.gt</td>
+                                    <td>Ing. Sistemas</td>
+                                    <td>TRUE</td>
+                                    <td>44</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p class="mb-2 mt-3"><strong>Hoja 2: Inscripciones</strong></p>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>carne_estudiante</th>
+                                    <th>id_asignacion</th>
+                                    <th>fecha_inscripcion</th>
+                                    <th>estado</th>
+                                    <th>nota_final</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>7590-23-1001</td>
+                                    <td>218</td>
+                                    <td>03/10/2025</td>
+                                    <td>INSCRITO</td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    }
+
+
+    async function importarCompleto() {
+        const input = document.getElementById('archivoCompleto');
+        const btn = document.getElementById('btnImportar');
+        const mensajeDiv = document.getElementById('mensajeImportacion');
+
+        if (!input.files[0]) {
+            mensajeDiv.innerHTML = '<div class="alert alert-danger">Por favor selecciona un archivo</div>';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('archivo', input.files[0]);
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Importando...';
+        mensajeDiv.innerHTML = '<div class="alert alert-info">Procesando archivo...</div>';
+
+        try {
+            const response = await fetch('/api/importacion/completo', { method: 'POST', body: formData });
+            const data = await response.json();
+
+            if (data.success) {
+                mensajeDiv.innerHTML = `<div class="alert alert-success"><h5>✓ ${data.mensaje}</h5></div>`;
+                input.value = '';
+            } else {
+                mensajeDiv.innerHTML = `<div class="alert alert-danger">✗ ${data.mensaje}</div>`;
+            }
+        } catch (error) {
+            mensajeDiv.innerHTML = `<div class="alert alert-danger">✗ Error: ${error.message}</div>`;
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Importar Datos';
+        }
+    }
+
+    // FUNCIÓN PARA CARGAR ESTADÍSTICAS
+    function cargarEstadisticas() {
+        const contenedor = document.getElementById("contenido-dinamico");
+        contenedor.innerHTML = `<div class="d-flex justify-content-center align-items-center vh-50">
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>`;
+
+        fetch('/api/estadisticas')
+            .then(res => res.json())
+            .then(data => {
+                const g = data.general;
+                let html = `
+                <h3 class="fw-bold mb-4" style="color: #493f5d;">📊 Reportes y Estadísticas</h3>
+                <p class="text-muted mb-4">Aquí se visualizan los indicadores clave de rendimiento (KPIs) sobre cupos, carga académica y eficiencia.</p>
+
+                <!-- CARDS RESUMEN -->
+                <div class="row g-4 mb-5">
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #F2AEBB 0%, #e99aaa 100%);">
+                            <div class="card-body text-center py-4">
+                                <h2 class="display-4 fw-bold text-white mb-2">${g.totalEstudiantes}</h2>
+                                <p class="text-white mb-0 fw-semibold">Estudiantes Activos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #86B0BD 0%, #6a95a3 100%);">
+                            <div class="card-body text-center py-4">
+                                <h2 class="display-4 fw-bold text-white mb-2">${g.totalCatedraticos}</h2>
+                                <p class="text-white mb-0 fw-semibold">Catedráticos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #E8C4A2 0%, #d9b08f 100%);">
+                            <div class="card-body text-center py-4">
+                                <h2 class="display-4 fw-bold text-white mb-2">${g.totalSecciones}</h2>
+                                <p class="text-white mb-0 fw-semibold">Secciones</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #B5A7D5 0%, #9d8fc2 100%);">
+                            <div class="card-body text-center py-4">
+                                <h2 class="display-4 fw-bold text-white mb-2">${g.totalCursos}</h2>
+                                <p class="text-white mb-0 fw-semibold">Cursos Activos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRÁFICA: Distribución Total por Género -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header" style="background-color: #86B0BD; color: white;">
+                        <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Distribución Total por Género</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <canvas id="chartGenero" height="250"></canvas>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-center">
+                                <div class="w-100">
+                                    <div class="mb-3">
+                                        <h6 class="text-muted mb-2">Hombres: <strong>${g.totalHombres} estudiantes</strong></h6>
+                                        <div class="progress" style="height: 30px;">
+                                            <div class="progress-bar" style="width: ${g.porcentajeHombres}%; background-color: #4A90E2;" role="progressbar">
+                                                ${g.porcentajeHombres}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-muted mb-2">Mujeres: <strong>${g.totalMujeres} estudiantes</strong></h6>
+                                        <div class="progress" style="height: 30px;">
+                                            <div class="progress-bar" style="width: ${g.porcentajeMujeres}%; background-color: #E91E63;" role="progressbar">
+                                                ${g.porcentajeMujeres}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRÁFICA: Distribución por Aula -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header" style="background-color: #F2AEBB; color: #493f5d;">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Distribución de Estudiantes por Aula</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="chartAulas" height="400"></canvas>
+                    </div>
+                </div>
+
+                <!-- GRÁFICA: Carga de Catedráticos -->
+                <div class="card shadow-sm">
+                    <div class="card-header" style="background-color: #86B0BD; color: white;">
+                        <h5 class="mb-0"><i class="fas fa-chalkboard-teacher"></i> Carga de Catedráticos (Clases Asignadas)</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="chartCatedraticos" height="350"></canvas>
+                    </div>
+                </div>
+                `;
+
+                contenedor.innerHTML = html;
+
+                // Gráfica de pie (distribución total)
+                new Chart(document.getElementById('chartGenero'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Hombres', 'Mujeres'],
+                        datasets: [{
+                            data: [g.totalHombres, g.totalMujeres],
+                            backgroundColor: ['#4A90E2', '#E91E63'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { font: { size: 14 } } }
+                        }
+                    }
+                });
+
+                // Gráfica de barras horizontales (por aula) - CON NÚMEROS REALES
+                const aulas = data.distribucionPorAula.map(a => a.nombreAula);
+                const hombresAula = data.distribucionPorAula.map(a => a.totalHombres);
+                const mujeresAula = data.distribucionPorAula.map(a => a.totalMujeres);
+                const totalesAula = data.distribucionPorAula.map(a => a.totalEstudiantes);
+
+                new Chart(document.getElementById('chartAulas'), {
+                    type: 'bar',
+                    data: {
+                        labels: aulas.map((aula, idx) => `${aula} (${totalesAula[idx]} est.)`),
+                        datasets: [
+                            {
+                                label: 'Hombres',
+                                data: hombresAula,
+                                backgroundColor: '#4A90E2',
+                                borderWidth: 0
+                            },
+                            {
+                                label: 'Mujeres',
+                                data: mujeresAula,
+                                backgroundColor: '#E91E63',
+                                borderWidth: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                stacked: true,
+                                title: { display: true, text: 'Cantidad de Estudiantes' }
+                            },
+                            y: { stacked: true }
+                        },
+                        plugins: {
+                            legend: { position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const total = totalesAula[context.dataIndex];
+                                        const valor = context.parsed.x;
+                                        const porcentaje = ((valor / total) * 100).toFixed(1);
+                                        return context.dataset.label + ': ' + valor + ' (' + porcentaje + '%)';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Nueva gráfica: Carga de catedráticos
+                fetch('/horarios/catedraticos')
+                    .then(res => res.json())
+                    .then(horarios => {
+                        // Contar clases por catedrático
+                        const cargaPorCatedratico = {};
+                        horarios.forEach(h => {
+                            if (!cargaPorCatedratico[h.catedratico]) {
+                                cargaPorCatedratico[h.catedratico] = 0;
+                            }
+                            cargaPorCatedratico[h.catedratico]++;
+                        });
+
+                        // Ordenar y tomar solo catedráticos con clases
+                        const catedraticos = Object.keys(cargaPorCatedratico).sort();
+                        const cargas = catedraticos.map(c => cargaPorCatedratico[c]);
+
+                        new Chart(document.getElementById('chartCatedraticos'), {
+                            type: 'bar',
+                            data: {
+                                labels: catedraticos,
+                                datasets: [{
+                                    label: 'Clases Asignadas',
+                                    data: cargas,
+                                    backgroundColor: '#86B0BD',
+                                    borderWidth: 0
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: { stepSize: 1 },
+                                        title: { display: true, text: 'Número de Clases' }
+                                    },
+                                    x: {
+                                        ticks: {
+                                            maxRotation: 45,
+                                            minRotation: 45
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: { display: false }
+                                }
+                            }
+                        });
+                    })
+                    .catch(err => console.error('Error al cargar datos de catedráticos:', err));
+            })
+            .catch(err => {
+                contenedor.innerHTML = `<div class='alert alert-danger'>Error al cargar estadísticas</div>`;
+                console.error(err);
+            });
+    }
+</script>
+</body>
+</html>

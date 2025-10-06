@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horario Estudiante</title>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+
+<body class="p-4">
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4 p-3 rounded-3 shadow-sm"
+     style="background: linear-gradient(90deg, #8168cf 0%, #6b4fb7 100%)">
+    <h2 class="text-white px-4 py-2 rounded-3 shadow"
+        th:text="'Bienvenido Estudiante - ' + ${usuarioNombre}">Bienvenido Estudiante</h2>
+    <a href="/logout" class="btn btn-success shadow"
+       style="background-color: #F75270 !important; border-color: #F75270;">Cerrar sesión</a>
+</div>
+
+<!-- Contenedor del horario -->
+<div class="p-4 p-md-5 rounded-4 shadow-lg"
+     style="background-color: #ffffff; color: #333; max-width: 700px; margin: auto;">
+
+    <!-- Título -->
+    <div class="text-center mb-4">
+        <span class="fs-4 fw-bold text-white px-4 py-2 rounded-3 shadow"
+              style="background: linear-gradient(90deg, #8168cf 0%, #6b4fb7 100%); display: inline-block;">
+              HORARIO
+        </span>
+    </div>
+
+    <div class="table-responsive mt-4">
+        <table class="table table-bordered align-middle text-center mb-0"
+               style="border-collapse: separate; border-spacing: 0; border-radius: 12px; overflow: hidden;">
+            <thead>
+            <tr class="fw-bold" style="background-color: #D3C7E6; color: #493f5d;">
+                <th class="text-start rounded-top-start" style="width: 160px;">Hora</th>
+                <th class="rounded-top-end">Sábado</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <!-- Recuperamos solo el sábado -->
+            <th:block th:with="sabadoHorario=${horarioMap != null and #maps.containsKey(horarioMap, 'Sabado')} ? ${horarioMap.get('Sabado')} : null">
+
+                <!-- 07:00 - 09:00 -->
+                <tr th:with="curso=${sabadoHorario != null ? sabadoHorario.get('07:00') : null}, color='#C4E9DA'">
+                    <td class="fw-bold text-start" style="background-color: #f0f0f0;">07:00 - 09:00</td>
+                    <td th:if="${curso != null}">
+                        <div th:style="'background-color: ' + ${color}"
+                             class="p-2 rounded text-dark shadow-sm">
+                            <span th:text="${curso.nombreCurso}" class="fw-bold"></span>
+                            <small th:text="'Sección: ' + ${curso.nombreSeccion} +
+                                            ' | Aula: ' + ${curso.nombreAula} +
+                                            ' | Catedrático: ' + ${curso.nombreCatedratico}"
+                                   class="d-block text-secondary fw-light"></small>
+                        </div>
+                    </td>
+                    <td th:unless="${curso != null}" class="fst-italic text-secondary"
+                        style="background-color: #E6F0F5;">Libre</td>
+                </tr>
+
+                <!-- 09:00 - 11:00 -->
+                <tr th:with="curso=${sabadoHorario != null ? sabadoHorario.get('09:00') : null}, color='#FED5CF'">
+                    <td class="fw-bold text-start" style="background-color: #f0f0f0;">09:00 - 11:00</td>
+                    <td th:if="${curso != null}">
+                        <div th:style="'background-color: ' + ${color}"
+                             class="p-2 rounded text-dark shadow-sm">
+                            <span th:text="${curso.nombreCurso}" class="fw-bold"></span>
+                            <small th:text="'Sección: ' + ${curso.nombreSeccion} +
+                                            ' | Aula: ' + ${curso.nombreAula} +
+                                            ' | Catedrático: ' + ${curso.nombreCatedratico}"
+                                   class="d-block text-secondary fw-light"></small>
+                        </div>
+                    </td>
+                    <td th:unless="${curso != null}" class="fst-italic text-secondary"
+                        style="background-color: #E6F0F5;">Libre</td>
+                </tr>
+
+                <!-- 11:00 - 13:00 -->
+                <tr th:with="curso=${sabadoHorario != null ? sabadoHorario.get('11:00') : null}, color='#F1B598'">
+                    <td class="fw-bold text-start" style="background-color: #f0f0f0;">11:00 - 13:00</td>
+                    <td th:if="${curso != null}">
+                        <div th:style="'background-color: ' + ${color}"
+                             class="p-2 rounded text-dark shadow-sm">
+                            <span th:text="${curso.nombreCurso}" class="fw-bold"></span>
+                            <small th:text="'Sección: ' + ${curso.nombreSeccion} +
+                                            ' | Aula: ' + ${curso.nombreAula} +
+                                            ' | Catedrático: ' + ${curso.nombreCatedratico}"
+                                   class="d-block text-secondary fw-light"></small>
+                        </div>
+                    </td>
+                    <td th:unless="${curso != null}" class="fst-italic text-secondary"
+                        style="background-color: #E6F0F5;">Libre</td>
+                </tr>
+
+                <!-- 13:00 - 14:00 (Almuerzo fijo) -->
+                <tr>
+                    <td class="fw-bold text-start" style="background-color: #f0f0f0;">13:00 - 14:00</td>
+                    <td class="fst-italic text-secondary" style="background-color: #E6F0F5;">Libre / Almuerzo</td>
+                </tr>
+
+                <!-- 14:00 - 16:00 -->
+                <tr th:with="curso=${sabadoHorario != null ? sabadoHorario.get('14:00') : null}, color='#D3C7E6'">
+                    <td class="fw-bold text-start" style="background-color: #f0f0f0;">14:00 - 16:00</td>
+                    <td th:if="${curso != null}">
+                        <div th:style="'background-color: ' + ${color}"
+                             class="p-2 rounded text-dark shadow-sm">
+                            <span th:text="${curso.nombreCurso}" class="fw-bold"></span>
+                            <small th:text="'Sección: ' + ${curso.nombreSeccion} +
+                                            ' | Aula: ' + ${curso.nombreAula} +
+                                            ' | Catedrático: ' + ${curso.nombreCatedratico}"
+                                   class="d-block text-secondary fw-light"></small>
+                        </div>
+                    </td>
+                    <td th:unless="${curso != null}" class="fst-italic text-secondary"
+                        style="background-color: #E6F0F5;">Libre</td>
+                </tr>
+
+                <!-- 16:00 - 18:00 -->
+                <tr th:with="curso=${sabadoHorario != null ? sabadoHorario.get('16:00') : null}, color='#C4E9DA'">
+                    <td class="fw-bold text-start" style="background-color: #f0f0f0;">16:00 - 18:00</td>
+                    <td th:if="${curso != null}">
+                        <div th:style="'background-color: ' + ${color}"
+                             class="p-2 rounded text-dark shadow-sm">
+                            <span th:text="${curso.nombreCurso}" class="fw-bold"></span>
+                            <small th:text="'Sección: ' + ${curso.nombreSeccion} +
+                                            ' | Aula: ' + ${curso.nombreAula} +
+                                            ' | Catedrático: ' + ${curso.nombreCatedratico}"
+                                   class="d-block text-secondary fw-light"></small>
+                        </div>
+                    </td>
+                    <td th:unless="${curso != null}" class="fst-italic text-secondary"
+                        style="background-color: #E6F0F5;">Libre</td>
+                </tr>
+
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

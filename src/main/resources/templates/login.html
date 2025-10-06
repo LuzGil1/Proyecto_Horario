@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container vh-100 d-flex align-items-center justify-content-center">
+    <div class="row w-100">
+        <div class="col-md-10 mx-auto">
+            <div class="card shadow border-0 rounded-4 overflow-hidden">
+                <div class="row g-0">
+                    <!-- Panel izquierdo con espacio para imagen -->
+                    <div class="col-md-6  bg-opacity-10 d-flex align-items-center justify-content-center">
+                        <div class="text-center text-muted px-4">
+                            <img th:src="@{/img/calendar.png}" alt="Calendario" class="img-fluid">
+
+                            <!--                             <p class="fs-5">📊 Aquí va tu imagen ilustrativa</p>-->
+                        </div>
+                    </div>
+
+                    <!-- Panel derecho con formulario -->
+                    <div class="col-md-6 p-5">
+                        <div class="text-center mb-4">
+                            <div class="rounded-circle bg-secondary mx-auto mb-3" style="width: 60px; height: 60px;">
+                                <img th:src="@{/img/colegio.jpg}" alt="Calendario" class="img-fluid">
+                            </div>
+                            <h2 class="fw-bold">Bienvenido</h2>
+
+
+                        </div>
+
+                        <form action="/login" method="post">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Correo electrónico</label>
+                                <input type="email" id="email" name="email" class="form-control" placeholder="Ingresa tu correo" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Contraseña</label>
+                                <input type="password" id="password" name="password" class="form-control" placeholder="Ingresa tu contraseña" required>
+                            </div>
+
+                            <button type="submit" class="btn w-100" style="background-color: #a152d1; border-color: #a152d1; color: white" >Sign In</button>
+                            <br>
+                            <br>
+                            <p class="alert alert-danger text-center" th:if="${error}" th:text="${error}"></p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

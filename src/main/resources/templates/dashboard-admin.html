@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        .horario-grid {
+            display: grid;
+            grid-template-columns: 100px repeat(7, 1fr);
+            gap: 1px;
+            background: #dee2e6;
+            border: 1px solid #dee2e6;
+        }
+        .horario-cell {
+            background: white;
+            padding: 8px;
+            min-height: 60px;
+            font-size: 0.85rem;
+        }
+        .horario-header {
+            background: #6b4fb7;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+        }
+        .horario-time {
+            background: #f8f9fa;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .clase-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .clase-card:hover {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<!-- Menú móvil -->
+<nav class="navbar navbar-dark d-md-none fixed-top" style="background: linear-gradient(90deg, #6b4fb7 0%, #8168cf 100%); z-index: 1050;">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/dashboard-admin}">📅 Calendario</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+    <div class="collapse navbar-collapse" id="mobileMenu">
+        <div class="p-3">
+            <a class="btn btn-outline-light w-100 mb-2 text-start" href="#" onclick="cargarContenido('/cursos')">📚 Cursos</a>
+<!--            <a class="btn btn-outline-light w-100 mb-2 text-start" href="#" onclick="cargarContenido('/clases')">Clases</a>-->
+            <a class="btn btn-outline-light w-100 mb-2 text-start" href="#" onclick="cargarEstudiantes()">‍🎓‍ Estudiantes</a>
+            <a class="btn btn-outline-light w-100 mb-2 text-start" href="#" onclick="cargarCatedraticos()">👨‍🏫 Catedráticos</a>
+            <a class="btn btn-outline-light w-100 mb-2 text-start" href="#" onclick="cargarHorarios()">📅 Horarios</a>
+<!--            <a class="btn btn-outline-light w-100 mb-2 text-start" href="#" onclick="cargarImportacion()">📤 Importación</a>-->
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row min-vh-100">
+
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-none d-md-block text-white position-fixed h-100" style="background: linear-gradient(90deg, #6b4fb7 0%, #8168cf 100%); z-index: 1000;">
+            <div class="p-3">
+                <a class="navbar-brand" th:href="@{/dashboard-admin}"><h4 class="mb-4">📅 Calendario</h4></a>
+                <div class="nav flex-column">
+                    <a class="btn btn-outline-light mb-2 text-start" href="#" onclick="cargarContenido('/cursos')">📚 Cursos</a>
+<!--                    <a class="btn btn-outline-light mb-2 text-start" href="#" onclick="cargarContenido('/clases')">Clases</a>-->
+                    <a class="btn btn-outline-light mb-2 text-start" href="#" onclick="cargarEstudiantes()">🧑‍🎓 Estudiantes</a>
+                    <a class="btn btn-outline-light mb-2 text-start" href="#" onclick="cargarCatedraticos()">👨‍🏫 Catedráticos</a>
+                    <a class="btn btn-outline-light mb-2 text-start" href="#" onclick="cargarHorarios()">📅 Horarios</a>
+<!--                    <a class="btn btn-outline-light mb-2 text-start" href="#" onclick="cargarImportacion()">📤 Importación</a>-->
+                </div>
+            </div>
+        </nav>
+
+        <!-- Contenido principal -->
+        <main class="col-12 col-md-9 ms-md-auto col-lg-10 offset-lg-2 px-md-4 py-4">
+
+            <div class="d-block d-md-none" style="height: 60px;"></div>
+
+            <div class="d-flex justify-content-between align-items-center mb-4 pt-md-0">
+                <h2 class="fw-bold">Dashboard Admin</h2>
+                <div class="d-flex align-items-center gap-3">
+                    <input class="form-control form-control-sm" type="search" placeholder="Buscar...">
+                    <a href="#" class="btn btn-outline-secondary btn-sm">🔔</a>
+                    <div class="dropdown">
+                        <a class="btn btn-secondary dropdown-toggle btn-sm" href="#" role="button" data-bs-toggle="dropdown">
+                            <span th:text="${usuarioNombre}">John Doe</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#">Perfil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a th:href="@{/logout}" class="dropdown-item">Cerrar sesión</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="contenido-dinamico">
+
+                <h3 class="fw-bold mt-4">Estado de Carga de Catedráticos</h3>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Catedrático</th>
+                                    <th>Profesión</th>
+                                    <th>Especialidad</th>
+                                    <th>Cursos Asignados</th>
+                                    <th>Carga Mínima</th>
+                                    <th>Carga Máxima</th>
+                                    <th>Estado de Carga</th>
+                                    <th>Diferencia</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="catedratico : ${estadoCargaCatedraticos}">
+                                    <td th:text="${catedratico.nombreCatedratico}"></td>
+                                    <td th:text="${catedratico.profesion}"></td>
+                                    <td th:text="${catedratico.profesion}"></td>
+                                    <td th:text="${catedratico.cursosAsignados}"></td>
+                                    <td th:text="${catedratico.cargaMinima}"></td>
+                                    <td th:text="${catedratico.cargaMaxima}"></td>
+                                    <td th:text="${catedratico.estadoCarga}"></td>
+                                    <td th:text="${catedratico.diferencia}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-3">
+                    <form th:action="@{/reorganizar-horarios}" method="post">
+                        <button type="submit" class="btn btn-danger">Reorganizar Horarios</button>
+                    </form>
+                </div>
+
+                <div th:if="${nuevasAsignaciones != null}">
+                    <h3 class="fw-bold mt-4">📋 Nuevas Asignaciones Generadas</h3>
+
+                    <div th:if="${!#lists.isEmpty(nuevasAsignaciones)}">
+                        <p class="text-muted">
+                            Total asignaciones: <span th:text="${nuevasAsignaciones.size()}"></span>
+                        </p>
+
+                        <div class="card mt-2">
+                            <div class="card-body p-0">
+                                <div class="table-responsive vh-50 overflow-y-scroll">
+                                    <table class="table table-striped table-hover align-middle mb-0">
+                                        <thead class="table-dark sticky-top">
+                                        <tr>
+                                            <th>Curso</th>
+                                            <th>Catedrático</th>
+                                            <th>Aula</th>
+                                            <th>Sección</th>
+                                            <th>Día</th>
+                                            <th>Horario</th>
+                                            <th>Estudiantes</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="asig : ${nuevasAsignaciones}">
+                                            <td th:text="${asig.cursoNombre}"></td>
+                                            <td th:text="${asig.nombreCatedratico}"></td>
+                                            <td th:text="${asig.aulaNombre}"></td>
+                                            <td th:text="${asig.nombreSeccion}"></td>
+                                            <td th:text="${asig.diaSemana}"></td>
+                                            <td th:text="${#dates.format(asig.horaInicio, 'HH:mm')} + ' - ' + ${#dates.format(asig.horaFin, 'HH:mm')}"></td>
+                                            <td>
+                                                <ul class="mb-0 list-unstyled">
+                                                    <li th:each="est : ${asig.nombresEstudiantes}" th:text="${est}"></li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(nuevasAsignaciones)}" class="alert alert-info mt-3">
+                        ⚠️ No se generaron nuevas asignaciones todavía.
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    function cargarContenido(url) {
+        const contenedor = document.getElementById("contenido-dinamico");
+        contenedor.innerHTML = `<div class="d-flex justify-content-center align-items-center vh-50">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>`;
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                let html = `<div class="card mt-4"><div class="card-body"><div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle">
+                        <thead class="table-dark"><tr>
+                            <th>ID</th><th>Nombre</th><th>Código</th><th>Tipo</th>
+                        </tr></thead><tbody>`;
+                data.forEach(curso => {
+                    html += `<tr><td>${curso.idCurso}</td><td>${curso.nombreCurso}</td>
+                        <td>${curso.codigoCurso}</td><td>${curso.tipo}</td></tr>`;
+                });
+                html += `</tbody></table></div></div></div>`;
+                contenedor.innerHTML = html;
+            })
+            .catch(err => {
+                contenedor.innerHTML = `<div class='alert alert-danger'>Error al cargar los cursos</div>`;
+                console.error(err);
+            });
+    }
+
+    function cargarCatedraticos() {
+        const contenedor = document.getElementById("contenido-dinamico");
+        contenedor.innerHTML = `<div class="d-flex justify-content-center align-items-center vh-50">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>`;
+
+        fetch('/catedraticos')
+            .then(res => res.json())
+            .then(data => {
+                let html = `<h3 class="fw-bold mt-4">Catedráticos</h3>
+                    <div class="card mt-2"><div class="card-body"><div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle">
+                            <thead class="table-dark"><tr>
+                                <th>DPI</th><th>Nombre</th><th>Especialidad</th><th>Email</th><th>Teléfono</th>
+                            </tr></thead><tbody>`;
+                data.forEach(cat => {
+                    html += `<tr><td>${cat.dpiCatedratico}</td><td>${cat.nombreCatedratico}</td>
+                        <td>${cat.especialidadCatedratico ?? ''}</td><td>${cat.emailCatedratico ?? ''}</td>
+                        <td>${cat.numeroTelefono ?? ''}</td></tr>`;
+                });
+                html += `</tbody></table></div></div></div>`;
+                contenedor.innerHTML = html;
+            })
+            .catch(err => {
+                contenedor.innerHTML = `<div class='alert alert-danger'>Error al cargar los catedráticos</div>`;
+                console.error(err);
+            });
+    }
+
+    function cargarEstudiantes() {
+        const contenedor = document.getElementById("contenido-dinamico");
+        contenedor.innerHTML = `<div class="d-flex justify-content-center align-items-center vh-50">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>`;
+
+        fetch('/estudiantes')
+            .then(res => res.json())
+            .then(data => {
+                let html = `
+                <h3 class="fw-bold mt-4">📚 Estudiantes</h3>
+                <p class="text-muted">Total: <strong>${data.length}</strong> estudiante${data.length !== 1 ? 's' : ''}</p>
+                <div class="card mt-2"><div class="card-body"><div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle">
+                        <thead class="table-dark"><tr>
+                            <th>#</th>
+                            <th>Carne</th><th>Nombre</th><th>Carrera</th><th>Sexo</th><th>Fecha Inscripción</th>
+                        </tr></thead><tbody>`;
+
+                data.forEach((est, index) => {
+                    html += `<tr>
+                    <td>${index + 1}</td>
+                    <td>${est.carneEstudiante}</td><td>${est.nombreEstudiante}</td>
+                    <td>${est.carrera ?? ''}</td><td>${est.sexo ?? ''}</td>
+                    <td>${est.fechaInscripcion ?? ''}</td></tr>`;
+                });
+
+                html += `</tbody></table></div></div></div>`;
+                contenedor.innerHTML = html;
+            })
+            .catch(err => {
+                contenedor.innerHTML = `<div class='alert alert-danger'>❌ Error al cargar los estudiantes</div>`;
+                console.error(err);
+            });
+    }
+
+    function cargarHorarios() {
+        const contenedor = document.getElementById("contenido-dinamico");
+        contenedor.innerHTML = `
+        <h3 class="fw-bold mt-4">📅 Consulta de Horarios</h3>
+
+        <ul class="nav nav-tabs mb-3" id="horariosTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="catedraticos-tab" data-bs-toggle="tab"
+                        data-bs-target="#catedraticos-pane" type="button" role="tab">
+                    👨‍🏫 Horarios por Catedrático
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="secciones-tab" data-bs-toggle="tab"
+                        data-bs-target="#secciones-pane" type="button" role="tab">
+                    🎓 Horarios por Sección
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="horariosTabContent">
+            <div class="tab-pane fade show active" id="catedraticos-pane" role="tabpanel">
+                <div class="d-flex justify-content-end mb-3">
+                    <button class="btn btn-danger" onclick="exportarPDFGeneral()">
+                        <i class="fas fa-file-pdf"></i> Exportar General
+                    </button>
+                </div>
+                <div id="catedraticos-content">
+                    <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="secciones-pane" role="tabpanel">
+                <div class="d-flex justify-content-end mb-3">
+                    <button class="btn btn-danger" onclick="exportarPDFGeneralSecciones()">
+                        <i class="fas fa-file-pdf"></i> Exportar General
+                    </button>
+                </div>
+                <div id="secciones-content">
+                    <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+        cargarHorariosCatedraticos();
+
+        document.getElementById('secciones-tab').addEventListener('click', () => {
+            if (!document.getElementById('secciones-content').dataset.loaded) {
+                cargarHorariosSecciones();
+            }
+        });
+    }
+
+    function cargarHorariosCatedraticos() {
+        const contenedor = document.getElementById("catedraticos-content");
+
+        fetch('/horarios/catedraticos')
+            .then(res => res.json())
+            .then(data => {
+                if (data.length === 0) {
+                    contenedor.innerHTML = '<div class="alert alert-info">No hay horarios registrados</div>';
+                    return;
+                }
+
+                const porCatedratico = {};
+                data.forEach(h => {
+                    if (!porCatedratico[h.catedratico]) {
+                        porCatedratico[h.catedratico] = [];
+                    }
+                    porCatedratico[h.catedratico].push(h);
+                });
+
+                let html = '<div class="accordion" id="accordionCatedraticos">';
+
+                Object.keys(porCatedratico).sort().forEach((catedratico, index) => {
+                    const horarios = porCatedratico[catedratico];
+                    const collapseId = `collapse${index}`;
+
+                    html += `
+                    <div class="accordion-item">
+                        <h2 class="accordion-header d-flex">
+                            <button class="accordion-button ${index > 0 ? 'collapsed' : ''} flex-grow-1" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#${collapseId}">
+                                <strong>${catedratico}</strong>
+                                <span class="badge bg-primary ms-2">${horarios.length} clases</span>
+                            </button>
+                            <button class="btn btn-danger btn-sm m-2" onclick="exportarPDFCatedratico('${catedratico}')"
+                                    title="Exportar horario de ${catedratico}">
+                                <i class="fas fa-file-pdf"></i>
+                            </button>
+                        </h2>
+                        <div id="${collapseId}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}"
+                             data-bs-parent="#accordionCatedraticos">
+                            <div class="accordion-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Día</th>
+                                                <th>Horario</th>
+                                                <th>Curso</th>
+                                                <th>Sección</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>`;
+
+                    const diasOrden = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+                    horarios.sort((a, b) => {
+                        const diaComp = diasOrden.indexOf(a.diaSemana) - diasOrden.indexOf(b.diaSemana);
+                        if (diaComp !== 0) return diaComp;
+                        return a.horaInicio.localeCompare(b.horaInicio);
+                    });
+
+                    horarios.forEach(h => {
+                        html += `
+                        <tr>
+                            <td><span class="badge bg-secondary">${h.diaSemana}</span></td>
+                            <td>${h.horaInicio} - ${h.horaFin}</td>
+                            <td>${h.curso}</td>
+                            <td>${h.seccion}</td>
+                        </tr>`;
+                    });
+
+                    html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+
+                html += '</div>';
+                contenedor.innerHTML = html;
+            })
+            .catch(err => {
+                contenedor.innerHTML = `<div class='alert alert-danger'>❌ Error al cargar horarios de catedráticos</div>`;
+                console.error(err);
+            });
+    }
+
+    function cargarHorariosSecciones() {
+        const contenedor = document.getElementById("secciones-content");
+        contenedor.dataset.loaded = 'true';
+
+        fetch('/horarios/secciones')
+            .then(res => res.json())
+            .then(data => {
+                if (data.length === 0) {
+                    contenedor.innerHTML = '<div class="alert alert-info">No hay horarios registrados</div>';
+                    return;
+                }
+
+                const porSeccion = {};
+                data.forEach(h => {
+                    if (!porSeccion[h.seccion]) {
+                        porSeccion[h.seccion] = [];
+                    }
+                    porSeccion[h.seccion].push(h);
+                });
+
+                let html = '<div class="accordion" id="accordionSecciones">';
+
+                Object.keys(porSeccion).sort().forEach((seccion, index) => {
+                    const horarios = porSeccion[seccion];
+                    const collapseId = `collapseSeccion${index}`;
+
+                    html += `
+                    <div class="accordion-item">
+                        <h2 class="accordion-header d-flex">
+                            <button class="accordion-button ${index > 0 ? 'collapsed' : ''} flex-grow-1" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#${collapseId}">
+                                <strong>Sección ${seccion}</strong>
+                                <span class="badge bg-success ms-2">${horarios.length} clases</span>
+                            </button>
+                            <button class="btn btn-danger btn-sm m-2" onclick="exportarPDFSeccion('${seccion}')"
+                                    title="Exportar horario de Sección ${seccion}">
+                                <i class="fas fa-file-pdf"></i>
+                            </button>
+                        </h2>
+                        <div id="${collapseId}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}"
+                             data-bs-parent="#accordionSecciones">
+                            <div class="accordion-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Día</th>
+                                                <th>Horario</th>
+                                                <th>Curso</th>
+                                                <th>Catedrático</th>
+                                                <th>Aula</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>`;
+
+                    const diasOrden = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+                    horarios.sort((a, b) => {
+                        const diaComp = diasOrden.indexOf(a.dia) - diasOrden.indexOf(b.dia);
+                        if (diaComp !== 0) return diaComp;
+                        return a.inicio.localeCompare(b.inicio);
+                    });
+
+                    horarios.forEach(h => {
+                        html += `
+                        <tr>
+                            <td><span class="badge bg-secondary">${h.dia}</span></td>
+                            <td>${h.inicio} - ${h.fin}</td>
+                            <td><strong>${h.cursoAsignado}</strong></td>
+                            <td>${h.catedratico}</td>
+                            <td><i class="fas fa-door-open"></i> ${h.aula}</td>
+                        </tr>`;
+                    });
+
+                    html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+
+                html += '</div>';
+                contenedor.innerHTML = html;
+            })
+            .catch(err => {
+                contenedor.innerHTML = `<div class='alert alert-danger'>❌ Error al cargar horarios de secciones</div>`;
+                console.error(err);
+            });
+    }
+
+    // Funciones de exportación PDF
+    function exportarPDFGeneral() {
+        window.location.href = '/horarios/pdf/general';
+    }
+
+    function exportarPDFCatedratico(nombreCatedratico) {
+        window.location.href = '/horarios/pdf/catedratico/' + encodeURIComponent(nombreCatedratico);
+    }
+
+    function exportarPDFSeccion(nombreSeccion) {
+        window.location.href = '/horarios/pdf/seccion/' + encodeURIComponent(nombreSeccion);
+    }
+
+    function exportarPDFGeneralSecciones() {
+        window.location.href = '/horarios/pdf/general-secciones';
+    }
+
+    // function cargarImportacion() {
+    //     const contenedor = document.getElementById("contenido-dinamico");
+    //     contenedor.innerHTML = `
+    //         <h3 class="fw-bold mt-4">📤 Importación de Datos desde Excel</h3>
+    //         <p class="text-muted">Carga UN archivo Excel con DOS hojas: "Estudiantes" e "Inscripciones"</p>
+    //
+    //         <div class="card mb-4 border-primary">
+    //             <div class="card-header bg-primary text-white">
+    //                 <h5 class="mb-0">📋 Importar Archivo Completo</h5>
+    //             </div>
+    //             <div class="card-body">
+    //                 <div class="alert alert-info">
+    //                     <strong>⚠️ Importante:</strong> El archivo Excel debe contener <strong>2 hojas</strong>:
+    //                     <ul class="mb-0 mt-2">
+    //                         <li><strong>Hoja 1 - "Estudiantes":</strong> carne_estudiante, nombre_estudiante, edad_estudiante, fecha_inscripcion, sexo, email, carrera, es_primer_ingreso, id_usuario</li>
+    //                         <li><strong>Hoja 2 - "Inscripciones":</strong> carne_estudiante, id_asignacion, fecha_inscripcion, estado, nota_final</li>
+    //                     </ul>
+    //                 </div>
+    //
+    //                 <div class="mb-3">
+    //                     <label for="archivoCompleto" class="form-label">Seleccionar archivo Excel:</label>
+    //                     <input type="file" class="form-control" id="archivoCompleto" accept=".xlsx,.xls">
+    //                 </div>
+    //
+    //                 <button onclick="importarCompleto()" class="btn btn-primary btn-lg" id="btnImportar">
+    //                     <i class="fas fa-cloud-upload-alt"></i> Importar Datos
+    //                 </button>
+    //
+    //                 <div id="mensajeImportacion" class="mt-3"></div>
+    //             </div>
+    //         </div>
+    //
+    //         <div class="alert alert-warning">
+    //             <h5 class="alert-heading">📋 Instrucciones:</h5>
+    //             <ul class="mb-0">
+    //                 <li>El archivo debe ser Excel (.xlsx o .xls)</li>
+    //                 <li><strong>Debe contener exactamente 2 hojas</strong></li>
+    //                 <li>La primera fila de cada hoja debe contener los encabezados</li>
+    //                 <li>Las fechas deben estar en formato dd/MM/yyyy o d/M/yyyy</li>
+    //                 <li>El campo sexo solo acepta M o F</li>
+    //                 <li>Los carnés y emails deben ser únicos</li>
+    //                 <li>El campo es_primer_ingreso acepta TRUE/FALSE o 1/0</li>
+    //             </ul>
+    //         </div>
+    //
+    //         <div class="card mt-3">
+    //             <div class="card-header">
+    //                 <strong>Ejemplo de estructura del Excel:</strong>
+    //             </div>
+    //             <div class="card-body">
+    //                 <p class="mb-2"><strong>Hoja 1: Estudiantes</strong></p>
+    //                 <div class="table-responsive">
+    //                     <table class="table table-sm table-bordered">
+    //                         <thead class="table-light">
+    //                             <tr>
+    //                                 <th>carne_estudiante</th>
+    //                                 <th>nombre_estudiante</th>
+    //                                 <th>edad_estudiante</th>
+    //                                 <th>fecha_inscripcion</th>
+    //                                 <th>sexo</th>
+    //                                 <th>email</th>
+    //                                 <th>carrera</th>
+    //                                 <th>es_primer_ingreso</th>
+    //                                 <th>id_usuario</th>
+    //                             </tr>
+    //                         </thead>
+    //                         <tbody>
+    //                             <tr>
+    //                                 <td>7590-23-1001</td>
+    //                                 <td>Juan Herrera</td>
+    //                                 <td>21</td>
+    //                                 <td>15/01/2025</td>
+    //                                 <td>M</td>
+    //                                 <td>juan@umg.edu.gt</td>
+    //                                 <td>Ing. Sistemas</td>
+    //                                 <td>TRUE</td>
+    //                                 <td>44</td>
+    //                             </tr>
+    //                         </tbody>
+    //                     </table>
+    //                 </div>
+    //
+    //                 <p class="mb-2 mt-3"><strong>Hoja 2: Inscripciones</strong></p>
+    //                 <div class="table-responsive">
+    //                     <table class="table table-sm table-bordered">
+    //                         <thead class="table-light">
+    //                             <tr>
+    //                                 <th>carne_estudiante</th>
+    //                                 <th>id_asignacion</th>
+    //                                 <th>fecha_inscripcion</th>
+    //                                 <th>estado</th>
+    //                                 <th>nota_final</th>
+    //                             </tr>
+    //                         </thead>
+    //                         <tbody>
+    //                             <tr>
+    //                                 <td>7590-23-1001</td>
+    //                                 <td>218</td>
+    //                                 <td>3/10/2025</td>
+    //                                 <td>INSCRITO</td>
+    //                                 <td></td>
+    //                             </tr>
+    //                         </tbody>
+    //                     </table>
+    //                 </div>
+    //             </div>
+    //         </div>
+    //     `;
+    // }
+
+    // async function importarCompleto() {
+    //     const input = document.getElementById('archivoCompleto');
+    //     const btn = document.getElementById('btnImportar');
+    //     const mensajeDiv = document.getElementById('mensajeImportacion');
+    //
+    //     if (!input.files[0]) {
+    //         mensajeDiv.innerHTML = '<div class="alert alert-danger">Por favor selecciona un archivo</div>';
+    //         return;
+    //     }
+    //
+    //     const formData = new FormData();
+    //     formData.append('archivo', input.files[0]);
+    //
+    //     btn.disabled = true;
+    //     btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Importando...';
+    //     mensajeDiv.innerHTML = '<div class="alert alert-info">Procesando archivo... Esto puede tomar unos momentos.</div>';
+    //
+    //     try {
+    //         const response = await fetch('/api/importacion/completo', {
+    //             method: 'POST',
+    //             body: formData
+    //         });
+    //
+    //         const data = await response.json();
+    //
+    //         if (data.success) {
+    //             mensajeDiv.innerHTML = `
+    //                 <div class="alert alert-success">
+    //                     <h5 class="alert-heading">✓ ${data.mensaje}</h5>
+    //                     <hr>
+    //                     <div class="row">
+    //                         <div class="col-md-6">
+    //                             <strong>📚 Estudiantes:</strong>
+    //                             <ul class="mb-0">
+    //                                 <li>Importados: ${data.estudiantesImportados}</li>
+    //                                 <li>Actualizados: ${data.estudiantesActualizados}</li>
+    //                                 <li>Errores: ${data.estudiantesErrores}</li>
+    //                             </ul>
+    //                         </div>
+    //                         <div class="col-md-6">
+    //                             <strong>📝 Inscripciones:</strong>
+    //                             <ul class="mb-0">
+    //                                 <li>Importadas: ${data.inscripcionesImportadas}</li>
+    //                                 <li>Actualizadas: ${data.inscripcionesActualizadas}</li>
+    //                                 <li>Errores: ${data.inscripcionesErrores}</li>
+    //                             </ul>
+    //                         </div>
+    //                     </div>
+    //                 </div>
+    //             `;
+    //             input.value = '';
+    //         } else {
+    //             mensajeDiv.innerHTML = `<div class="alert alert-danger">✗ ${data.mensaje}</div>`;
+    //         }
+    //     } catch (error) {
+    //         mensajeDiv.innerHTML = `<div class="alert alert-danger">✗ Error al procesar: ${error.message}</div>`;
+    //         console.error('Error:', error);
+    //     } finally {
+    //         btn.disabled = false;
+    //         btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Importar Datos';
+    //     }
+    // }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horario Catedrático</title>
+    <!-- Enlace a Bootstrap 5.3.2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <!-- Script de Bootstrap 5.3.2 (bundle para funcionalidades como Dropdowns, etc.) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<!--
+    Paleta de Colores COMBINADA (Morado Base + Pasteles):
+    Base Morada (Dark): #6b4fb7 (Para fondo principal)
+    Pastel 1 (Menta): #C4E9DA (Para bloques de clase, texto oscuro)
+    Pastel 2 (Rosa): #FED5CF (Para bloques de clase, texto oscuro)
+    Pastel 3 (Lavanda): #D3C7E6 (Para encabezados de fila/columna)
+    Morado Principal: #8168cf (Para bloques de clase o título degradado)
+    Texto Oscuro: #493f5d
+-->
+<body class="p-4" style="background: #6b4fb7; color: #f8f9fa;">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Texto con color blanco de Bootstrap (text-white) -->
+    <h2 class="text-white" th:text="'Bienvenido Catedrático - ' + ${usuarioNombre}">Bienvenido</h2>
+    <!-- Botón con color verde (btn-success) para un alto contraste y look pastel -->
+    <a href="/logout" class="btn btn-success shadow" style="background-color: #F75270 !important; border-color: #F75270;">Cerrar sesión</a>
+</div>
+
+<!-- Contenedor del Horario (Fondo blanco/claro, bordes redondeados y sombra) -->
+<div class="p-4 p-md-5 rounded-4 shadow-lg" style="background-color: #f8f9fa; color: #493f5d;">
+
+    <div class="text-center mb-4">
+        <!-- Título con degradado morado, similar al ejemplo del calendario -->
+        <span class="fs-4 fw-bold text-white px-4 py-2 rounded-3 shadow"
+              style="background: linear-gradient(90deg, #8168cf 0%, #6b4fb7 100%); display: inline-block;">
+              HORARIO SEMANAL
+        </span>
+    </div>
+
+    <div class="table-responsive mt-4">
+        <table class="table table-bordered align-middle text-center mb-0"
+               style="border-collapse: separate; border-spacing: 0; min-width: 900px;">
+            <thead>
+            <!-- Fila de encabezado de horas (Fondo Lavanda Pastel) -->
+            <tr class="fw-bold" style="background-color: #D3C7E6; color: #493f5d;">
+                <th class="text-start rounded-top-start" style="width: 120px; border-color: #dee2e6;">Día</th>
+                <th style="border-color: #dee2e6;">7:00 - 9:00</th>
+                <th style="border-color: #dee2e6;">9:00 - 11:00</th>
+                <th style="border-color: #dee2e6;">11:00 - 13:00</th>
+                <th style="border-color: #dee2e6;">13:00 - 14:00</th>
+                <th style="border-color: #dee2e6;">14:00 - 16:00</th>
+                <th class="rounded-top-end" style="border-color: #dee2e6;">16:00 - 18:00</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Inicio del Loop de Thymeleaf para los días (th:each) -->
+            <tr th:each="entry : ${horarioMap}" style="height: 90px;">
+
+                <!-- Columna del Día (Fondo Lavanda Claro, texto oscuro) -->
+                <td th:text="${entry.key}"
+                    class="text-start fw-bold"
+                    style="background-color: #E6E0F0; color: #493f5d; border-color: #dee2e6;">
+                    DIA
+                </td>
+
+                <!-- Columna 7:00 - 9:00 (Menta Pastel) -->
+                <td style="padding: 0; border-color: #dee2e6;">
+                    <div th:if="${entry.value['07:00'] != null}"
+                         class="d-flex flex-column justify-content-center align-items-center h-100 p-2 text-dark shadow-sm"
+                         style="background-color: #C4E9DA; font-size: 0.85rem; line-height: 1.2;">
+                        <span th:text="${entry.value['07:00'].nombreCurso}" class="fw-bold"></span>
+                        <small th:text="'Aula: ' + ${entry.value['07:00'].nombreAula}" class="fw-light mt-1 text-secondary"></small>
+                    </div>
+                    <span th:unless="${entry.value['07:00'] != null}"
+                          class="d-flex justify-content-center align-items-center h-100 text-secondary fst-italic"
+                          style="background-color: rgba(255, 255, 255, 0.7); font-size: 0.8rem; height: 90px;">
+                          Libre
+                    </span>
+                </td>
+
+                <!-- Columna 9:00 - 11:00 (Morado Principal) -->
+                <td style="padding: 0; border-color: #dee2e6;">
+                    <div th:if="${entry.value['09:00'] != null}"
+                         class="d-flex flex-column justify-content-center align-items-center h-100 p-2 text-white shadow-sm"
+                         style="background-color: #8168cf; font-size: 0.85rem; line-height: 1.2;">
+                        <span th:text="${entry.value['09:00'].nombreCurso}" class="fw-bold"></span>
+                        <small th:text="'Aula: ' + ${entry.value['09:00'].nombreAula}" class="fw-light mt-1"></small>
+                    </div>
+                    <span th:unless="${entry.value['09:00'] != null}"
+                          class="d-flex justify-content-center align-items-center h-100 text-secondary fst-italic"
+                          style="background-color: rgba(255, 255, 255, 0.7); font-size: 0.8rem; height: 90px;">
+                          Libre
+                    </span>
+                </td>
+
+                <!-- Columna 11:00 - 13:00 (Rosa Pálido) -->
+                <td style="padding: 0; border-color: #dee2e6;">
+                    <div th:if="${entry.value['11:00'] != null}"
+                         class="d-flex flex-column justify-content-center align-items-center h-100 p-2 text-dark shadow-sm"
+                         style="background-color: #FED5CF; font-size: 0.85rem; line-height: 1.2;">
+                        <span th:text="${entry.value['11:00'].nombreCurso}" class="fw-bold"></span>
+                        <small th:text="'Aula: ' + ${entry.value['11:00'].nombreAula}" class="fw-light mt-1 text-secondary"></small>
+                    </div>
+                    <span th:unless="${entry.value['11:00'] != null}"
+                          class="d-flex justify-content-center align-items-center h-100 text-secondary fst-italic"
+                          style="background-color: rgba(255, 255, 255, 0.7); font-size: 0.8rem; height: 90px;">
+                          Libre
+                    </span>
+                </td>
+
+                <!-- Columna 13:00 - 14:00 (Fija: Libre / Almuerzo) -->
+                <td class="text-secondary fst-italic"
+                    style="background-color: rgba(255, 255, 255, 0.7); font-size: 0.8rem; border-color: #dee2e6;">
+                    Libre / Almuerzo
+                </td>
+
+                <!-- Columna 14:00 - 16:00 (Menta Pastel) -->
+                <td style="padding: 0; border-color: #dee2e6;">
+                    <div th:if="${entry.value['14:00'] != null}"
+                         class="d-flex flex-column justify-content-center align-items-center h-100 p-2 text-dark shadow-sm"
+                         style="background-color: #C4E9DA; font-size: 0.85rem; line-height: 1.2;">
+                        <span th:text="${entry.value['14:00'].nombreCurso}" class="fw-bold"></span>
+                        <small th:text="'Aula: ' + ${entry.value['14:00'].nombreAula}" class="fw-light mt-1 text-secondary"></small>
+                    </div>
+                    <span th:unless="${entry.value['14:00'] != null}"
+                          class="d-flex justify-content-center align-items-center h-100 text-secondary fst-italic"
+                          style="background-color: rgba(255, 255, 255, 0.7); font-size: 0.8rem; height: 90px;">
+                          Libre
+                    </span>
+                </td>
+
+                <!-- Columna 16:00 - 18:00 (Morado Intenso) -->
+                <td style="padding: 0; border-color: #dee2e6;">
+                    <div th:if="${entry.value['16:00'] != null}"
+                         class="d-flex flex-column justify-content-center align-items-center h-100 p-2 text-white shadow-sm"
+                         style="background-color: #6b4fb7; font-size: 0.85rem; line-height: 1.2;">
+                        <span th:text="${entry.value['16:00'].nombreCurso}" class="fw-bold"></span>
+                        <small th:text="'Aula: ' + ${entry.value['16:00'].nombreAula}" class="fw-light mt-1"></small>
+                    </div>
+                    <span th:unless="${entry.value['16:00'] != null}"
+                          class="d-flex justify-content-center align-items-center h-100 text-secondary fst-italic"
+                          style="background-color: rgba(255, 255, 255, 0.7); font-size: 0.8rem; height: 90px;">
+                          Libre
+                    </span>
+                </td>
+            </tr>
+            <!-- Fin del Loop de Thymeleaf para los días -->
+
+            <tr th:if="${#lists.isEmpty(horarioMap)}">
+                <td colspan="7" class="text-center p-3 fst-italic text-muted">No se encontró horario para esta semana.</td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+</div>
+</body>
+</html>
