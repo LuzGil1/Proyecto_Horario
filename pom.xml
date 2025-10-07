@@ -79,18 +79,25 @@
         </dependency>
 
         <dependency>
-        <groupId>com.itextpdf</groupId>
-        <artifactId>itext7-core</artifactId>
-        <version>7.2.5</version>
-        <type>pom</type>
-    </dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext7-core</artifactId>
+            <version>7.2.5</version>
+            <type>pom</type>
+        </dependency>
 
     </dependencies>
 
-
-
-
     <build>
+        <!-- AÑADIDO: Esta sección fuerza a Maven a NO filtrar ningún recurso en src/main/resources,
+             evitando el error MalformedInputException al no intentar leer el archivo
+             application.properties para buscar variables. -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
