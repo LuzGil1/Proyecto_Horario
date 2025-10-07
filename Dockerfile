@@ -16,6 +16,6 @@ WORKDIR /app
 
 COPY --from=build /app/target/ProyectoHorario_1-0.0.1-SNAPSHOT.jar /app/ProyectoHorario_1.jar
 
-EXPOSE 8081
+EXPOSE ${PORT:-8080}
 
 ENTRYPOINT ["java", "-jar", "/app/ProyectoHorario_1.jar"]
