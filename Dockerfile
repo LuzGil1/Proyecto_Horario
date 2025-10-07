@@ -8,8 +8,6 @@ RUN mvn dependency:go-offline
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-RUN ls -la target
-
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
