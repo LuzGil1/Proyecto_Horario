@@ -11,13 +11,14 @@ RUN mvn dependency:go-offline -B
 # Copia el código fuente
 COPY src ./src
 
-# Compila sin descargar dependencias de nuevo
-RUN mvn package -DskipTests -B -o
+# --- ¡ESTA ES LA LÍNEA CLAVE CORREGIDA! ---
+# Compila (quitamos el '-o' para permitir acceso a la red si es necesario)
+RUN mvn package -DskipTests -B
 
 # Verifica que el JAR se creó
 RUN ls -la target/
 
-# ===== SEGUNDA ETAPA =====
+# ===== SEGUNDA ETAPA: JRE Ligero =====
 FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
