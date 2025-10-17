@@ -9,7 +9,7 @@ import com.example.proyectohorario_1.Servicio.CatedraticoService;
 import com.example.proyectohorario_1.Servicio.HorarioConsultaService;
 import com.example.proyectohorario_1.Servicio.HorarioPDFService;
 import com.example.proyectohorario_1.Servicio.HorarioService;
-import com.example.proyectohorario_1.model.AsignacionProblema;
+import com.example.proyectohorario_1.DTO.AsignacionProblema;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;

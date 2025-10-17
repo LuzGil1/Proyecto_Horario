@@ -8,7 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface AulaRepositorio extends JpaRepository<Aula, Integer> {
-    // Método para buscar un aula por su nombre
 
-    Optional<Aula> findByNombreAula(String nombreAula);
+    Optional<Aula> findByNombreAula(String nombreAula); // Buscar aula por nombre
 }

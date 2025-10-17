@@ -8,7 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface CursoRepositorio extends JpaRepository<Curso, Integer> {
-    // Método para buscar un curso por su código
-//    Curso findByCodigoCurso(String codigoCurso);
-    Optional<Curso> findByCodigoCurso(String codigoCurso);
+
+    Optional<Curso> findByCodigoCurso(String codigoCurso); // Buscar curso por código
 }

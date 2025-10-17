@@ -84,6 +84,7 @@ public class ImportacionService {
                     continue;
                 }
 
+                //Leer datos de la fila
                 String nombre = getCellValueAsString(row.getCell(1));
                 Integer edad = getCellValueAsInteger(row.getCell(2));
                 Date fechaInscripcion = getCellValueAsDate(row.getCell(3));
@@ -129,7 +130,7 @@ public class ImportacionService {
                     }
 
                     actualizados++;
-                    System.out.println("✓ Estudiante actualizado: " + carne);
+                    System.out.println("Estudiante actualizado: " + carne);
                 } else {
                     // Crear nuevo estudiante
                     estudiante = new Estudiante();

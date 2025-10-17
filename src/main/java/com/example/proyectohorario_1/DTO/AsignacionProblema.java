@@ -1,10 +1,8 @@
-package com.example.proyectohorario_1.model;
+package com.example.proyectohorario_1.DTO;
 
 import lombok.Data;
-import org.springframework.util.StringUtils;
 
 import java.sql.Time;
-import java.time.LocalTime;
 import java.util.List;
 
     @Data

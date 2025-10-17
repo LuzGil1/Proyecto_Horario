@@ -8,10 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface SeccionRepositorio extends JpaRepository<Seccion, Integer> {
-    Optional<Seccion> findByNombreSeccion(String nombreSeccion);
-
-//    -------para las estadisticas
-
-
+    Optional<Seccion> findByNombreSeccion(String nombreSeccion); // Buscar sección por nombre
 
 }

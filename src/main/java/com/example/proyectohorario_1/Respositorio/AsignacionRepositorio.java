@@ -18,22 +18,7 @@ import java.util.Optional;
 @Repository
 public interface AsignacionRepositorio extends JpaRepository<Asignacion, Long> {
 
-    List<Asignacion> findByEstado(String estado);
-    List<Asignacion> findBySeccion(Seccion seccion);
-    List<Asignacion> findByCatedratico(Catedratico catedratico);
 
-    Optional<Asignacion> findByCursoAndSeccion(Curso curso, Seccion seccion);
-
-    @Modifying
-    @Transactional
-    @Query(value = "UPDATE asignaciones SET dpi_catedratico = :dpiCatedratico, id_aula = :idAula, id_horario = :idHorario, fecha_asignacion = NOW() WHERE id_asignacion = :idAsignacion", nativeQuery = true)
-    int actualizarAsignacionDirecta(@Param("idAsignacion") Long idAsignacion,
-                                    @Param("dpiCatedratico") Long dpiCatedratico,
-                                    @Param("idAula") Integer idAula,
-                                    @Param("idHorario") Integer idHorario);
-
-
-//    ------------------------------
 
     @Query(value = """
     SELECT DISTINCT

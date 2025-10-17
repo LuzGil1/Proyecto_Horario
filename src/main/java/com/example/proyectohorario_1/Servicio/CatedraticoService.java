@@ -16,19 +16,7 @@ public class CatedraticoService {
 
     private final CatedraticoRepositorio catedraticoRepositorio;
 
-    // 🔹 Método para info básica (solo tabla de catedraticos)
-    public List<catedraticoInfoDTO> obtenerCatedraticosInfo() {
-        return catedraticoRepositorio.findAll()
-                .stream()
-                .map(c -> new catedraticoInfoDTO(
-                        c.getDpiCatedratico(),
-                        c.getNombreCatedratico(),
-                        c.getEspecialidadCatedratico(),
-                        c.getNumeroTelefono(),
-                        c.getEmailCatedratico()
-                ))
-                .toList();
-    }
+
 
     public List<CatedraticoDTO> obtenerEstadoCarga() {
         List<Object[]> resultados = catedraticoRepositorio.obtenerEstadoCargaCatedraticos();

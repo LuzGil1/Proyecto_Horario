@@ -10,14 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface UsuarioRespositorio extends JpaRepository<Usuario, Long> {
-
-//    aQUI PUEDE SER POR ESTO QUE NO FUNCION
-//Usuario findByEmailAndPassword(String email, String password);
-
-
-    Optional<Usuario> findByEmail(String email);
-
-
     Optional<Usuario> findByEmailAndPassword(String email, String password);
 
     @Query(value = """
@@ -36,6 +28,4 @@ public interface UsuarioRespositorio extends JpaRepository<Usuario, Long> {
             WHERE u.id_usuario = :idUsuario;
             """, nativeQuery = true)
     List<Object[]> obtenerHorarioPorUsuario(Long idUsuario);
-
-
 }

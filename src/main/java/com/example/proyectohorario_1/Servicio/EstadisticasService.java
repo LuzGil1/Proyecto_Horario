@@ -26,7 +26,10 @@ public class EstadisticasService {
     public EstadisticasDTO obtenerEstadisticas() {
 
         // Totales generales - convertir a Long de forma segura
-        Long totalEstudiantes = estudianteRepositorio.count();
+
+        Long totalEstudiantes = estudianteRepositorio.count(); // Cada .count() hace una consulta a la BD tipo: SELECT COUNT(*) FROM tabla
+        // Ejemplo: 75 estudiantes en total
+
         Long totalHombres = estudianteRepositorio.contarHombres();
         Long totalMujeres = estudianteRepositorio.contarMujeres();
         Long totalCatedraticos = catedraticoRepositorio.count();
@@ -34,13 +37,15 @@ public class EstadisticasService {
         Long totalCursos = cursoRepositorio.count();
         Long totalAulas = aulaRepositorio.count();
 
-        Double porcentajeH = totalEstudiantes > 0
-                ? round((totalHombres * 100.0) / totalEstudiantes, 2)
-                : 0.0;
+        // Calcula el porcentaje de hombres
+        Double porcentajeH = totalEstudiantes > 0 // Evita división por cero
+                ? round((totalHombres * 100.0) / totalEstudiantes, 2) // Redondea a 2 decimales
+                : 0.0;// Si no hay estudiantes, el porcentaje es 0
         Double porcentajeM = totalEstudiantes > 0
                 ? round((totalMujeres * 100.0) / totalEstudiantes, 2)
                 : 0.0;
 
+        // Empaca todos los datos generales en un objeto para transportarlos
         EstadisticaGeneralDTO general = new EstadisticaGeneralDTO(
                 totalEstudiantes,
                 totalHombres,
@@ -53,27 +58,46 @@ public class EstadisticasService {
                 porcentajeM
         );
 
+
         // Distribución por aula
-        List<Object[]> resultados = estudianteRepositorio.obtenerDistribucionPorAula();
+//        Como rayos funiona esto
+//        Esta consulta devuelve una lista de arrays de objetos (Object[])
+//        Cada array representa una fila con la siguiente estructura:
+//        [0] = nombreAula (String)
+//        [1] = totalEstudiantes (Number - puede ser Long, Integer, BigInteger, etc.)
+//        [2] = totalHombres (Number)
+//        [3] = totalMujeres (Number)
+//        Ejemplo de resultado:
+//          [
+//        ["Salon 1", 25, 13, 12],
+//         ["Salon 2", 25, 14, 11],
+//         ["Salon 3", 25, 13, 12]
+
+        List<Object[]> resultados = estudianteRepositorio.obtenerDistribucionPorAula(); //
+        // Lista para almacenar los DTOs procesados de cada aula
         List<EstadisticaAulaDTO> distribucion = new ArrayList<>();
 
+//        pROCESAR CADA AULA
+        // Recorre cada fila del resultado de la consulta
         for (Object[] row : resultados) {
-            String nombreAula = (String) row[0];
+            String nombreAula = (String) row[0]; // Nombre del aula ejemplo: "Salon 1"
 
-            // Conversión segura manejando diferentes tipos numéricos
+            // Conversión segura manejando diferentes tipos numéricos para evitar errores,
+//            esto lograria esto "Salon 1": total=25, hombres=13, mujeres=12
             Long total = convertirALong(row[1]);
             Long hombres = convertirALong(row[2]);
             Long mujeres = convertirALong(row[3]);
-
-            Double porcH = total > 0 ? round((hombres * 100.0) / total, 2) : 0.0;
+            // CALCULAR PORCENTAJES PARA ESTA AULA
+            Double porcH = total > 0 ? round((hombres * 100.0) / total, 2) : 0.0; // Ejemplo: (13 * 100.0) / 25 = 52.00%
             Double porcM = total > 0 ? round((mujeres * 100.0) / total, 2) : 0.0;
 
+            // CREAR DTO Y AGREGAR A LA LISTA
             distribucion.add(new EstadisticaAulaDTO(
                     nombreAula, total, hombres, mujeres, porcH, porcM
             ));
         }
 
-        return new EstadisticasDTO(general, distribucion);
+        return new EstadisticasDTO(general, distribucion); // Empaquetar todo en el DTO final
     }
 
     // Método auxiliar para convertir diferentes tipos numéricos a Long
